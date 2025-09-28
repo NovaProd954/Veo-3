@@ -1,496 +1,333 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veo 3 Video Generator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        textarea, input, select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        textarea {
-            height: 120px;
-            resize: vertical;
-        }
-
-        textarea:focus, input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .generate-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .generate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .generate-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: 600;
-            display: none;
-        }
-
-        .status.loading {
-            background: #e3f2fd;
-            color: #1976d2;
-            display: block;
-        }
-
-        .status.success {
-            background: #e8f5e8;
-            color: #2e7d32;
-            display: block;
-        }
-
-        .status.error {
-            background: #ffebee;
-            color: #c62828;
-            display: block;
-        }
-
-        .video-container {
-            margin-top: 30px;
-            text-align: center;
-            display: none;
-        }
-
-        video {
-            max-width: 100%;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .download-btn {
-            margin-top: 15px;
-            background: #4caf50;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .download-btn:hover {
-            background: #45a049;
-            transform: translateY(-1px);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 3px;
-            margin-top: 10px;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.3s ease;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .api-key-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            border-left: 4px solid #667eea;
-        }
-
-        .api-key-section h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .api-key-section p {
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .examples {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .examples h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .example {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .example:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-
-        .example-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .example-text {
-            color: #666;
-            font-size: 14px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veo 3 Video Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+    .form-group { margin-bottom: 25px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+    textarea, input, select {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+    textarea { height: 120px; resize: vertical; }
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .generate-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white; border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+    .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+    .status.loading { background: #e3f2fd; color: #1976d2; display: block; }
+    .status.success { background: #e8f5e8; color: #2e7d32; display: block; }
+    .status.error { background: #ffebee; color: #c62828; display: block; }
+    .video-container { margin-top: 30px; text-align: center; display: none; }
+    video {
+      max-width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .download-btn {
+      margin-top: 15px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+    .download-btn:hover { background: #45a049; transform: translateY(-1px); }
+    .progress-bar {
+      width: 100%; height: 6px; background: #e0e0e0;
+      border-radius: 3px; margin-top: 10px;
+      overflow: hidden; display: none;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      width: 0%; transition: width 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .api-key-section {
+      background: #f8f9fa;
+      padding: 20px; border-radius: 10px;
+      margin-bottom: 30px;
+      border-left: 4px solid #667eea;
+    }
+    .examples {
+      background: #f8f9fa;
+      padding: 20px; border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .example {
+      background: white; padding: 15px;
+      border-radius: 8px; margin-bottom: 10px;
+      cursor: pointer; transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .example:hover { border-color: #667eea; transform: translateY(-2px); }
+    .example-title { font-weight: 600; margin-bottom: 5px; }
+    .example-text { color: #666; font-size: 14px; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎬 Veo 3 Video Generator</h1>
-        <p class="subtitle">Generate high-quality 8-second videos with AI</p>
+  <div class="container">
+    <h1>🎬 Veo 3 Video Generator</h1>
+    <p class="subtitle">Generate high-quality 8-second videos with AI</p>
 
-        <div class="api-key-section">
-            <h3>🔑 Setup Required</h3>
-            <p>To use this generator, you need a Gemini API key from Google AI Studio. Enter your API key below:</p>
-            <input type="password" id="apiKey" placeholder="Enter your Gemini API key here..." />
-        </div>
-
-        <div class="examples">
-            <h3>💡 Example Prompts (Click to use)</h3>
-            <div class="example" onclick="useExample(this)">
-                <div class="example-title">Dialogue Scene</div>
-                <div class="example-text">A close up of two people staring at a cryptic drawing on a wall, torchlight flickering. A man murmurs, 'This must be it. That's the secret code.' The woman looks at him and whispering excitedly, 'What did you find?'</div>
-            </div>
-            <div class="example" onclick="useExample(this)">
-                <div class="example-title">Cinematic Shot</div>
-                <div class="example-text">A cinematic shot of a majestic lion in the savannah, golden hour lighting, camera slowly panning to reveal the vast landscape.</div>
-            </div>
-            <div class="example" onclick="useExample(this)">
-                <div class="example-title">Nature Scene</div>
-                <div class="example-text">Close up shot of melting icicles on a frozen rock wall with cool blue tones, zoomed in maintaining close-up detail of water drips.</div>
-            </div>
-        </div>
-
-        <form id="videoForm">
-            <div class="form-group">
-                <label for="prompt">Video Prompt</label>
-                <textarea id="prompt" placeholder="Describe your video... Be descriptive and include details about subject, action, style, camera movement, and ambiance." required></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="negativePrompt">Negative Prompt (Optional)</label>
-                <textarea id="negativePrompt" placeholder="Describe what you DON'T want in the video (e.g., cartoon, drawing, low quality)"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="aspectRatio">Aspect Ratio</label>
-                <select id="aspectRatio">
-                    <option value="16:9">16:9 (Widescreen)</option>
-                </select>
-            </div>
-
-            <button type="submit" class="generate-btn" id="generateBtn">
-                🎬 Generate Video
-            </button>
-        </form>
-
-        <div id="status" class="status"></div>
-        <div id="progressBar" class="progress-bar">
-            <div id="progressFill" class="progress-fill"></div>
-        </div>
-
-        <div id="videoContainer" class="video-container">
-            <video id="generatedVideo" controls></video>
-            <br>
-            <a id="downloadBtn" class="download-btn" download="generated_video.mp4">
-                📥 Download Video
-            </a>
-        </div>
+    <div class="api-key-section">
+      <h3>🔑 Setup Required</h3>
+      <p>Enter your Veo 3 API key below:</p>
+      <input type="password" id="apiKey" placeholder="Enter your API key here..." />
     </div>
 
-    <script>
-        let pollInterval;
-        let startTime;
+    <div class="examples">
+      <h3>💡 Example Prompts (Click to use)</h3>
+      <div class="example" onclick="useExample(this)">
+        <div class="example-title">Dialogue Scene</div>
+        <div class="example-text">
+          A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.
+        </div>
+      </div>
+      <div class="example" onclick="useExample(this)">
+        <div class="example-title">Cinematic Shot</div>
+        <div class="example-text">
+          A cinematic shot of a majestic lion in the savannah, golden hour lighting, wide camera pan.
+        </div>
+      </div>
+      <div class="example" onclick="useExample(this)">
+        <div class="example-title">Nature Scene</div>
+        <div class="example-text">
+          Close up shot of melting icicles on a frozen rock wall, cool blue tones, water dripping.
+        </div>
+      </div>
+    </div>
 
-        function useExample(element) {
-            const exampleText = element.querySelector('.example-text').textContent;
-            document.getElementById('prompt').value = exampleText;
+    <form id="videoForm">
+      <div class="form-group">
+        <label for="prompt">Video Prompt</label>
+        <textarea id="prompt" placeholder="Describe your video..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="negativePrompt">Negative Prompt (Optional)</label>
+        <textarea id="negativePrompt" placeholder="What you DON'T want in the video"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="aspectRatio">Aspect Ratio</label>
+        <select id="aspectRatio">
+          <option value="16:9">16:9 (Widescreen)</option>
+          <option value="9:16">9:16 (Vertical)</option>
+          <option value="1:1">1:1 (Square)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="generate-btn" id="generateBtn">🎬 Generate Video</button>
+    </form>
+
+    <div id="status" class="status"></div>
+    <div id="progressBar" class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+
+    <div id="videoContainer" class="video-container">
+      <video id="generatedVideo" controls></video><br>
+      <a id="downloadBtn" class="download-btn" download="generated_video.mp4">📥 Download Video</a>
+    </div>
+  </div>
+
+  <script>
+    let startTime;
+
+    function useExample(element) {
+      const exampleText = element.querySelector('.example-text').textContent;
+      document.getElementById('prompt').value = exampleText;
+    }
+
+    function showStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+      status.style.display = 'block';
+    }
+
+    function updateProgress(percentage) {
+      document.getElementById('progressBar').style.display = 'block';
+      document.getElementById('progressFill').style.width = `${percentage}%`;
+    }
+
+    function resetUI() {
+      document.getElementById('videoContainer').style.display = 'none';
+      document.getElementById('progressBar').style.display = 'none';
+      document.getElementById('progressFill').style.width = '0%';
+    }
+
+    function setButtonLoading(loading) {
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = loading;
+      btn.textContent = loading ? '🎬 Generating Video...' : '🎬 Generate Video';
+    }
+
+    async function pollOperation(operationName, apiKey) {
+      const baseUrl = "https://generativelanguage.googleapis.com/v1beta";
+      while (true) {
+        try {
+          const response = await fetch(`${baseUrl}/${operationName}`, {
+            headers: { 'x-goog-api-key': apiKey }
+          });
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const statusResponse = await response.json();
+
+          // Simulated progress (replace with real % if API supports)
+          const elapsed = (Date.now() - startTime) / 1000;
+          const estimatedTotal = 120;
+          const progress = Math.min((elapsed / estimatedTotal) * 90, 90);
+          updateProgress(progress);
+
+          if (statusResponse.done) {
+            updateProgress(100);
+            if (statusResponse.error) throw new Error(statusResponse.error.message || 'Video generation failed');
+
+            const videoUri = statusResponse.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
+            if (!videoUri) throw new Error('No video URI in response');
+
+            const videoResponse = await fetch(videoUri, { headers: { 'x-goog-api-key': apiKey } });
+            if (!videoResponse.ok) throw new Error('Failed to download video');
+
+            const videoBlob = await videoResponse.blob();
+            const videoUrl = URL.createObjectURL(videoBlob);
+
+            document.getElementById('generatedVideo').src = videoUrl;
+            document.getElementById('downloadBtn').href = videoUrl;
+            document.getElementById('videoContainer').style.display = 'block';
+
+            showStatus('🎉 Video generated successfully!', 'success');
+            setButtonLoading(false);
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, 10000));
+        } catch (error) {
+          console.error('Polling error:', error);
+          showStatus(`❌ Error: ${error.message}`, 'error');
+          setButtonLoading(false);
+          break;
         }
+      }
+    }
 
-        function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = `status ${type}`;
-        }
+    document.getElementById('videoForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const apiKey = document.getElementById('apiKey').value.trim();
+      if (!apiKey) return showStatus('❌ Please enter your Veo 3 API key', 'error');
 
-        function hideStatus() {
-            document.getElementById('status').style.display = 'none';
-        }
+      const prompt = document.getElementById('prompt').value.trim();
+      if (!prompt) return showStatus('❌ Please enter a video prompt', 'error');
 
-        function showProgress() {
-            document.getElementById('progressBar').style.display = 'block';
-        }
+      const negativePrompt = document.getElementById('negativePrompt').value.trim();
+      const aspectRatio = document.getElementById('aspectRatio').value;
 
-        function hideProgress() {
-            document.getElementById('progressBar').style.display = 'none';
-        }
+      try {
+        resetUI();
+        setButtonLoading(true);
+        showStatus('🚀 Starting video generation...', 'loading');
+        startTime = Date.now();
 
-        function updateProgress(percentage) {
-            document.getElementById('progressFill').style.width = `${percentage}%`;
-        }
+        const baseUrl = "https://generativelanguage.googleapis.com/v1beta";
+        const requestBody = {
+          prompt,
+          config: { aspect_ratio: aspectRatio, resolution: "720p" }
+        };
+        if (negativePrompt) requestBody.config.negative_prompt = negativePrompt;
 
-        function setButtonLoading(loading) {
-            const btn = document.getElementById('generateBtn');
-            btn.disabled = loading;
-            btn.textContent = loading ? '🎬 Generating Video...' : '🎬 Generate Video';
-        }
-
-        async function pollOperation(operationName, apiKey) {
-            const baseUrl = "https://generativelanguage.googleapis.com/v1beta";
-            let progress = 0;
-            
-            while (true) {
-                try {
-                    const response = await fetch(`${baseUrl}/${operationName}`, {
-                        headers: {
-                            'x-goog-api-key': apiKey
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const statusResponse = await response.json();
-                    
-                    // Update progress (simulate progress over time)
-                    const elapsed = (Date.now() - startTime) / 1000;
-                    const estimatedTotal = 120;
-                    progress = Math.min((elapsed / estimatedTotal) * 90, 90);
-                    updateProgress(progress);
-
-                    if (statusResponse.done) {
-                        updateProgress(100);
-                        
-                        if (statusResponse.error) {
-                            throw new Error(statusResponse.error.message || 'Video generation failed');
-                        }
-
-                        const videoUri = statusResponse.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
-                        
-                        if (!videoUri) {
-                            throw new Error('No video URI in response');
-                        }
-
-                        const videoResponse = await fetch(videoUri, {
-                            headers: {
-                                'x-goog-api-key': apiKey
-                            }
-                        });
-
-                        if (!videoResponse.ok) {
-                            throw new Error('Failed to download video');
-                        }
-
-                        const videoBlob = await videoResponse.blob();
-                        const videoUrl = URL.createObjectURL(videoBlob);
-
-                        const video = document.getElementById('generatedVideo');
-                        const downloadBtn = document.getElementById('downloadBtn');
-                        video.src = videoUrl;
-                        downloadBtn.href = videoUrl;
-
-                        document.getElementById('videoContainer').style.display = 'block';
-                        showStatus('🎉 Video generated successfully!', 'success');
-                        hideProgress();
-                        setButtonLoading(false);
-                        
-                        break;
-                    }
-
-                    await new Promise(resolve => setTimeout(resolve, 10000));
-                    
-                } catch (error) {
-                    console.error('Polling error:', error);
-                    showStatus(`❌ Error: ${error.message}`, 'error');
-                    hideProgress();
-                    setButtonLoading(false);
-                    break;
-                }
-            }
-        }
-
-        document.getElementById('videoForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // REPLACE "YOUR_API_KEY_HERE" WITH YOUR ACTUAL API KEY
-            const apiKey = document.getElementById('apiKey').value.trim() || "AIzaSyAdZ5yUF5AW40fI_Pahu5rQ_jafmHyBGx8";
-            
-            if (apiKey === "YOUR_API_KEY_HERE" || !apiKey) {
-                showStatus('❌ Please enter your Gemini API key', 'error');
-                return;
-            }
-
-            const prompt = document.getElementById('prompt').value.trim();
-            if (!prompt) {
-                showStatus('❌ Please enter a video prompt', 'error');
-                return;
-            }
-
-            const negativePrompt = document.getElementById('negativePrompt').value.trim();
-            const aspectRatio = document.getElementById('aspectRatio').value;
-
-            try {
-                setButtonLoading(true);
-                hideStatus();
-                showProgress();
-                updateProgress(0);
-                startTime = Date.now();
-
-                showStatus('🚀 Starting video generation...', 'loading');
-
-                const baseUrl = "https://generativelanguage.googleapis.com/v1beta";
-                
-                const requestBody = {
-                    prompt: prompt,
-                    config: {
-                        aspect_ratio: aspectRatio,
-                        resolution: "720p"
-                    }
-                };
-
-                if (negativePrompt) {
-                    requestBody.config.negative_prompt = negativePrompt;
-                }
-
-                const response = await fetch(`${baseUrl}/models/veo-3.0-fast-generate-001:generateVideos`, {
-                    method: 'POST',
-                    headers: {
-                        'x-goog-api-key': apiKey,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
-                }
-
-                const operationData = await response.json();
-                
-                if (!operationData.name) {
-                    throw new Error('No operation name received');
-                }
-
-                showStatus('⏳ Video is being generated... This may take 1-6 minutes', 'loading');
-                
-                await pollOperation(operationData.name, apiKey);
-
-            } catch (error) {
-                console.error('Error:', error);
-                showStatus(`❌ Error: ${error.message}`, 'error');
-                hideProgress();
-                setButtonLoading(false);
-            }
+        const response = await fetch(`${baseUrl}/models/veo-3.0-fast-generate-001:generateVideos`, {
+          method: 'POST',
+          headers: {
+            'x-goog-api-key': apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
         });
-    </script>
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const operationData = await response.json();
+        if (!operationData.name) throw new Error('No operation name received');
+
+        showStatus('⏳ Video is being generated... This may take 1–6 minutes', 'loading');
+        await pollOperation(operationData.name, apiKey);
+
+      } catch (error) {
+        console.error('Error:', error);
+        showStatus(`❌ Error: ${error.message}`, 'error');
+        setButtonLoading(false);
+      }
+    });
+  </script>
 </body>
 </html>
